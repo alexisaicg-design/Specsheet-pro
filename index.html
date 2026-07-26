@@ -7,7 +7,7 @@
     <meta name="description" content="Crea y descarga fichas técnicas de producto y hojas de especificaciones de laboratorio en PDF al instante. Herramienta gratuita para industria, e-commerce y control de calidad.">
     <meta name="keywords" content="ficha tecnica pdf, generador especificaciones producto, data sheet generator, calidad industrial, control de calidad formato">
     
-    <!-- Open Graph (para redes/LinkedIn) -->
+    <!-- Open Graph -->
     <meta property="og:title" content="SpecSheet Pro - Generador de Fichas Técnicas de Producto">
     <meta property="og:description" content="Crea fichas técnicas profesionales en PDF en menos de 1 minuto.">
     <meta property="og:type" content="website">
@@ -22,8 +22,14 @@
     <!-- Header -->
     <header class="border-b border-slate-800 bg-slate-950/50 backdrop-blur p-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-wider text-indigo-400">SPEC<span class="text-slate-100">SHEET</span> PRO</h1>
-            <span class="text-xs font-semibold px-2.5 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full">v1.0 MVP</span>
+            <div class="flex items-center gap-3">
+                <h1 class="text-xl font-bold tracking-wider text-indigo-400">SPEC<span class="text-slate-100">SHEET</span> PRO</h1>
+                <span class="text-xs font-semibold px-2.5 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full">v1.1</span>
+            </div>
+            <!-- Botón Gumroad / PRO -->
+            <a id="buyProBtn" href="#" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1.5">
+                <span>⚡ Obtener Versión PRO ($9.99)</span>
+            </a>
         </div>
     </header>
 
@@ -32,7 +38,7 @@
         
         <!-- Formulario de Entrada (Izquierda) -->
         <section class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 shadow-xl flex flex-col gap-6 overflow-y-auto max-h-[85vh]">
-            <h2 class="text-lg font-semibold text-slate-200 border-b border-slate-700 pb-2">1. Datos del Producto</h2>
+            <h2 class="text-lg font-semibold text-slate-200 border-b border-slate-700 pb-2">1. Datos de la Empresa y Producto</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -40,7 +46,7 @@
                     <input type="text" id="prodName" value="Aceite Vegetal Refining Grade A" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm focus:border-indigo-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Código / SKUs</label>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Código / SKU</label>
                     <input type="text" id="prodCode" value="FT-AVG-2026" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm focus:border-indigo-500 outline-none">
                 </div>
                 <div>
@@ -53,19 +59,24 @@
                 </div>
             </div>
 
+            <!-- Carga de Logo -->
             <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Descripción General</label>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Logo de la Empresa (PNG/JPG)</label>
+                <input type="file" id="logoInput" accept="image/*" class="w-full text-xs text-slate-400 bg-slate-900 border border-slate-700 rounded p-2 cursor-pointer file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-indigo-600 file:text-white hover:file:bg-indigo-500">
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Descripción General del Producto</label>
                 <textarea id="prodDesc" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm focus:border-indigo-500 outline-none">Producto graso refinado de alta pureza diseñado para procesos de formulación industrial. Excelente estabilidad oxidativa y cumplimiento con estándares de grado alimenticio.</textarea>
             </div>
 
             <h2 class="text-lg font-semibold text-slate-200 border-b border-slate-700 pb-2">2. Especificaciones Técnicas</h2>
             
             <div id="specRows" class="space-y-3">
-                <!-- Fila por defecto -->
                 <div class="grid grid-cols-3 gap-2 spec-row">
-                    <input type="text" placeholder="Parámetro (ej. Acidez)" value="Acidez Libre (% Oleico)" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-name">
+                    <input type="text" placeholder="Parámetro" value="Acidez Libre (% Oleico)" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-name">
                     <input type="text" placeholder="Especificación" value="Máx. 0.10%" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-spec">
-                    <input type="text" placeholder="Método (ej. AOCS Ca 5a-40)" value="AOCS Ca 5a-40" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-method">
+                    <input type="text" placeholder="Método" value="AOCS Ca 5a-40" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-method">
                 </div>
                 <div class="grid grid-cols-3 gap-2 spec-row">
                     <input type="text" placeholder="Parámetro" value="Índice de Peróxido" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-name">
@@ -83,16 +94,19 @@
 
         <!-- Previsualización en Vivo (Derecha) -->
         <section class="bg-slate-950 border border-slate-800 rounded-xl p-6 flex flex-col items-center overflow-y-auto max-h-[85vh]">
-            <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Vista Previa del Documento</span>
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Vista Previa del Documento PDF</span>
             
-            <!-- Lienzo de la Ficha Técnica (Formato A4 estilizado) -->
+            <!-- Lienzo de la Ficha Técnica (A4) -->
             <div id="pdfTemplate" class="w-full bg-white text-slate-900 p-8 rounded shadow-2xl text-xs flex flex-col justify-between min-h-[600px]">
                 <div>
                     <!-- Encabezado PDF -->
                     <div class="flex justify-between items-start border-b-2 border-slate-800 pb-4 mb-6">
-                        <div>
-                            <h1 id="previewCompany" class="text-base font-bold text-slate-800 uppercase tracking-wide">Industrial Quality Labs S.A.</h1>
-                            <p class="text-[10px] text-slate-500">Hoja de Especificaciones de Producto</p>
+                        <div class="flex items-center gap-3">
+                            <img id="previewLogo" class="h-10 w-auto hidden object-contain" alt="Logo de Empresa">
+                            <div>
+                                <h1 id="previewCompany" class="text-base font-bold text-slate-800 uppercase tracking-wide">Industrial Quality Labs S.A.</h1>
+                                <p class="text-[10px] text-slate-500">Hoja de Especificaciones de Producto</p>
+                            </div>
                         </div>
                         <div class="text-right">
                             <span id="previewCode" class="font-mono text-xs font-bold text-indigo-600 block">FT-AVG-2026</span>
@@ -116,14 +130,14 @@
                             </tr>
                         </thead>
                         <tbody id="previewTableBody" class="divide-y divide-slate-200">
-                            <!-- Se llena dinámicamente con JS -->
+                            <!-- JS dinámico -->
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Pie de página PDF -->
                 <div class="border-t border-slate-200 pt-4 mt-8 flex justify-between text-[9px] text-slate-400">
-                    <p>Documento generado de forma automatizada por SpecSheet Pro.</p>
+                    <p id="footerWatermark">Generado vía SpecSheet Pro (Versión Gratuita)</p>
                     <p>Página 1 de 1</p>
                 </div>
             </div>

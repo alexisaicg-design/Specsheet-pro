@@ -1,5 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Establecer fecha actual por defecto
+    // === CONFIGURACIÓN DE MONETIZACIÓN ===
+    // REEMPLAZA ESTA URL CON EL ENLACE DIRECTO A TU PRODUCTO EN GUMROAD
+    const GUMROAD_PRODUCT_URL = 'https://gumroad.com'; // Ejemplo: https://tuusuario.gumroad.com/l/specsheet-pro
+    
+    const buyProBtn = document.getElementById('buyProBtn');
+    if (buyProBtn) {
+        buyProBtn.href = GUMROAD_PRODUCT_URL;
+    }
+
+    // Fecha actual por defecto
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('docDate').value = today;
 
@@ -9,11 +18,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const companyNameInput = document.getElementById('companyName');
     const docDateInput = document.getElementById('docDate');
     const prodDescInput = document.getElementById('prodDesc');
+    const logoInput = document.getElementById('logoInput');
     const addSpecBtn = document.getElementById('addSpecBtn');
     const specRowsContainer = document.getElementById('specRows');
     const generatePdfBtn = document.getElementById('generatePdfBtn');
 
-    // Función para actualizar la vista previa
+    // Procesar Carga de Logo
+    logoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const previewLogo = document.getElementById('previewLogo');
+                previewLogo.src = event.target.result;
+                previewLogo.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Función para actualizar la vista previa en tiempo real
     function updatePreview() {
         document.getElementById('previewProdName').textContent = prodNameInput.value || 'Nombre del Producto';
         document.getElementById('previewCode').textContent = prodCodeInput.value || 'CÓDIGO-000';
@@ -48,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('input', updatePreview);
     });
 
-    // Escuchar cambios en las filas dinámicas
     specRowsContainer.addEventListener('input', updatePreview);
 
     // Agregar nueva fila de parámetros
@@ -69,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const fileName = (prodCodeInput.value || 'Ficha_Tecnica') + '.pdf';
 
         const opt = {
-            margin:       0.5,
+            margin:       0.4,
             filename:     fileName,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2 },
