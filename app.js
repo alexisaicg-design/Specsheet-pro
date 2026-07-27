@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // === CONFIGURACIÓN DE MONETIZACIÓN ===
     // REEMPLAZA ESTA URL CON EL ENLACE DIRECTO A TU PRODUCTO EN GUMROAD
-    const GUMROAD_PRODUCT_URL = 'https://gumroad.com'; // Ejemplo: https://tuusuario.gumroad.com/l/specsheet-pro
-    
+    const GUMROAD_PRODUCT_URL = 'https://4934584006928.gumroad.com/l/hogpva';
     const buyProBtn = document.getElementById('buyProBtn');
     if (buyProBtn) {
         buyProBtn.href = GUMROAD_PRODUCT_URL;
