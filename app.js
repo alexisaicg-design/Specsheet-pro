@@ -1,52 +1,53 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // === CONFIGURACIÓN DE MONETIZACIÓN ===
-    // REEMPLAZA ESTA URL CON EL ENLACE DIRECTO A TU PRODUCTO EN GUMROAD
+    // === CONFIGURACIÓN ===
     const GUMROAD_PRODUCT_URL = 'https://4934584006928.gumroad.com/l/hogpva';
     const buyProBtn = document.getElementById('buyProBtn');
-    if (buyProBtn) {
-        buyProBtn.href = GUMROAD_PRODUCT_URL;
-    }
+    if (buyProBtn) buyProBtn.href = GUMROAD_PRODUCT_URL;
 
     // Fecha actual por defecto
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('docDate').value = today;
-
-    // Elementos de entrada
-    const prodNameInput = document.getElementById('prodName');
-    const prodCodeInput = document.getElementById('prodCode');
-    const companyNameInput = document.getElementById('companyName');
     const docDateInput = document.getElementById('docDate');
-    const prodDescInput = document.getElementById('prodDesc');
-    const logoInput = document.getElementById('logoInput');
-    const addSpecBtn = document.getElementById('addSpecBtn');
-    const specRowsContainer = document.getElementById('specRows');
-    const generatePdfBtn = document.getElementById('generatePdfBtn');
+    if (docDateInput) docDateInput.value = today;
+
+    // Referencias al DOM
+    const elements = {
+        prodName: document.getElementById('prodName'),
+        prodCode: document.getElementById('prodCode'),
+        companyName: document.getElementById('companyName'),
+        docDate: docDateInput,
+        prodDesc: document.getElementById('prodDesc'),
+        logoInput: document.getElementById('logoInput'),
+        addSpecBtn: document.getElementById('addSpecBtn'),
+        specRowsContainer: document.getElementById('specRows'),
+        generatePdfBtn: document.getElementById('generatePdfBtn')
+    };
 
     // Procesar Carga de Logo
-    logoInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const previewLogo = document.getElementById('previewLogo');
-                previewLogo.src = event.target.result;
-                previewLogo.classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    if (elements.logoInput) {
+        elements.logoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const previewLogo = document.getElementById('previewLogo');
+                    previewLogo.src = event.target.result;
+                    previewLogo.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 
-    // Función para actualizar la vista previa en tiempo real
+    // Actualización de Vista Previa (Mitigación XSS aplicada)
     function updatePreview() {
-        document.getElementById('previewProdName').textContent = prodNameInput.value || 'Nombre del Producto';
-        document.getElementById('previewCode').textContent = prodCodeInput.value || 'CÓDIGO-000';
-        document.getElementById('previewCompany').textContent = companyNameInput.value || 'Nombre de la Empresa';
-        document.getElementById('previewDate').textContent = docDateInput.value || today;
-        document.getElementById('previewDesc').textContent = prodDescInput.value || 'Sin descripción.';
+        document.getElementById('previewProdName').textContent = elements.prodName.value || 'Nombre del Producto';
+        document.getElementById('previewCode').textContent = elements.prodCode.value || 'CÓDIGO-000';
+        document.getElementById('previewCompany').textContent = elements.companyName.value || 'Nombre de la Empresa';
+        document.getElementById('previewDate').textContent = elements.docDate.value || today;
+        document.getElementById('previewDesc').textContent = elements.prodDesc.value || 'Sin descripción.';
 
-        // Actualizar Tabla
         const previewTableBody = document.getElementById('previewTableBody');
-        previewTableBody.innerHTML = '';
+        previewTableBody.innerHTML = ''; // Limpiar tabla
 
         const rows = document.querySelectorAll('.spec-row');
         rows.forEach(row => {
@@ -56,51 +57,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (param || spec || method) {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-2 font-medium text-slate-800">${param}</td>
-                    <td class="p-2 text-slate-600">${spec}</td>
-                    <td class="p-2 text-slate-500 font-mono text-[10px]">${method}</td>
-                `;
+                
+                const tdParam = document.createElement('td');
+                tdParam.className = "p-2 font-medium text-slate-800";
+                tdParam.textContent = param;
+
+                const tdSpec = document.createElement('td');
+                tdSpec.className = "p-2 text-slate-600";
+                tdSpec.textContent = spec;
+
+                const tdMethod = document.createElement('td');
+                tdMethod.className = "p-2 text-slate-500 font-mono text-[10px]";
+                tdMethod.textContent = method;
+
+                tr.appendChild(tdParam);
+                tr.appendChild(tdSpec);
+                tr.appendChild(tdMethod);
                 previewTableBody.appendChild(tr);
             }
         });
     }
 
-    // Escuchar cambios en los inputs
-    [prodNameInput, prodCodeInput, companyNameInput, docDateInput, prodDescInput].forEach(input => {
-        input.addEventListener('input', updatePreview);
+    // Listeners de actualización
+    ['prodName', 'prodCode', 'companyName', 'docDate', 'prodDesc'].forEach(key => {
+        if (elements[key]) elements[key].addEventListener('input', updatePreview);
     });
 
-    specRowsContainer.addEventListener('input', updatePreview);
+    if (elements.specRowsContainer) {
+        elements.specRowsContainer.addEventListener('input', updatePreview);
+    }
 
-    // Agregar nueva fila de parámetros
-    addSpecBtn.addEventListener('click', () => {
-        const newRow = document.createElement('div');
-        newRow.className = 'grid grid-cols-3 gap-2 spec-row';
-        newRow.innerHTML = `
-            <input type="text" placeholder="Parámetro" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-name">
-            <input type="text" placeholder="Especificación" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-spec">
-            <input type="text" placeholder="Método" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-method">
-        `;
-        specRowsContainer.appendChild(newRow);
-    });
+    // Agregar nueva fila
+    if (elements.addSpecBtn) {
+        elements.addSpecBtn.addEventListener('click', () => {
+            const newRow = document.createElement('div');
+            newRow.className = 'grid grid-cols-3 gap-2 spec-row mt-2';
+            newRow.innerHTML = `
+                <input type="text" placeholder="Parámetro" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-name">
+                <input type="text" placeholder="Especificación" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-spec">
+                <input type="text" placeholder="Método" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-method">
+            `;
+            elements.specRowsContainer.appendChild(newRow);
+        });
+    }
 
-    // Generar y descargar PDF
-    generatePdfBtn.addEventListener('click', () => {
-        const element = document.getElementById('pdfTemplate');
-        const fileName = (prodCodeInput.value || 'Ficha_Tecnica') + '.pdf';
+    // Generador PDF
+    if (elements.generatePdfBtn) {
+        elements.generatePdfBtn.addEventListener('click', () => {
+            const element = document.getElementById('pdfTemplate');
+            const fileName = (elements.prodCode.value || 'Ficha_Tecnica') + '.pdf';
 
-        const opt = {
-            margin:       0.4,
-            filename:     fileName,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
+            const opt = {
+                margin:       0.4,
+                filename:     fileName,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
 
-        html2pdf().set(opt).from(element).save();
-    });
+            html2pdf().set(opt).from(element).save();
+        });
+    }
 
-    // Render inicial
     updatePreview();
 });
