@@ -4,20 +4,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const buyProBtn = document.getElementById('buyProBtn');
     if (buyProBtn) buyProBtn.href = GUMROAD_PRODUCT_URL;
 
-    // Fecha actual por defecto
+    // Asignar fecha de hoy por defecto
     const today = new Date().toISOString().split('T')[0];
     const docDateInput = document.getElementById('docDate');
-    if (docDateInput) docDateInput.value = today;
+    if (docDateInput && !docDateInput.value) {
+        docDateInput.value = today;
+    }
 
-    // Referencias al DOM (Se incluyen inputs de revisión)
+    // Referencias completas al DOM
     const elements = {
         prodName: document.getElementById('prodName'),
         prodCode: document.getElementById('prodCode'),
         companyName: document.getElementById('companyName'),
         docDate: docDateInput,
         localeSelect: document.getElementById('localeSelect'),
-        revNumber: document.getElementById('revNumber'), // <-- NUEVO
-        revChange: document.getElementById('revChange'), // <-- NUEVO
+        revNumber: document.getElementById('revNumber'),
+        revChange: document.getElementById('revChange'),
         prodDesc: document.getElementById('prodDesc'),
         logoInput: document.getElementById('logoInput'),
         addSpecBtn: document.getElementById('addSpecBtn'),
@@ -25,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         generatePdfBtn: document.getElementById('generatePdfBtn')
     };
 
-    // Función auxiliar para parsear fechas sin errores de zona horaria
+    // Formateador de fechas
     function formatPdfDate(rawDateString, formatType) {
         if (!rawDateString) return "";
         const parts = rawDateString.split("-");
@@ -52,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Procesar Carga de Logo
+    // Manejador de Logo
     if (elements.logoInput) {
         elements.logoInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -60,68 +62,72 @@ document.addEventListener('DOMContentLoaded', () => {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const previewLogo = document.getElementById('previewLogo');
-                    previewLogo.src = event.target.result;
-                    previewLogo.classList.remove('hidden');
+                    if (previewLogo) {
+                        previewLogo.src = event.target.result;
+                        previewLogo.classList.remove('hidden');
+                    }
                 };
                 reader.readAsDataURL(file);
             }
         });
     }
 
-    // Actualización de Vista Previa
+    // Renderizado de Vista Previa
     function updatePreview() {
-        document.getElementById('previewProdName').textContent = elements.prodName.value || 'Nombre del Producto';
-        document.getElementById('previewCode').textContent = elements.prodCode.value || 'CÓDIGO-000';
-        document.getElementById('previewCompany').textContent = elements.companyName.value || 'Nombre de la Empresa';
+        if (elements.prodName) document.getElementById('previewProdName').textContent = elements.prodName.value || 'Nombre del Producto';
+        if (elements.prodCode) document.getElementById('previewCode').textContent = elements.prodCode.value || 'CÓDIGO-000';
+        if (elements.companyName) document.getElementById('previewCompany').textContent = elements.companyName.value || 'Nombre de la Empresa';
         
-        // Formateo de fecha dinámico
-        const rawDate = elements.docDate.value || today;
+        // Fecha
+        const rawDate = (elements.docDate && elements.docDate.value) ? elements.docDate.value : today;
         const selectedFormat = elements.localeSelect ? elements.localeSelect.value : 'iso';
-        document.getElementById('previewDate').textContent = formatPdfDate(rawDate, selectedFormat);
+        const previewDateElem = document.getElementById('previewDate');
+        if (previewDateElem) previewDateElem.textContent = formatPdfDate(rawDate, selectedFormat);
 
-        // Actualización de Control de Revisión (Trazabilidad) <-- NUEVO
-        const rev = elements.revNumber && elements.revNumber.value ? elements.revNumber.value : 'Rev. 00';
-        const change = elements.revChange && elements.revChange.value ? elements.revChange.value : 'Emisión Inicial';
+        // Control de Revisión
+        const rev = (elements.revNumber && elements.revNumber.value) ? elements.revNumber.value : 'Rev. 00';
+        const change = (elements.revChange && elements.revChange.value) ? elements.revChange.value : 'Emisión Inicial';
         const previewRevElem = document.getElementById('previewRevision');
-        if (previewRevElem) {
-            previewRevElem.textContent = `${rev} | ${change}`;
-        }
+        if (previewRevElem) previewRevElem.textContent = `${rev} | ${change}`;
 
-        document.getElementById('previewDesc').textContent = elements.prodDesc.value || 'Sin descripción.';
+        // Descripción
+        if (elements.prodDesc) document.getElementById('previewDesc').textContent = elements.prodDesc.value || 'Sin descripción.';
 
+        // Tabla de especificaciones
         const previewTableBody = document.getElementById('previewTableBody');
-        previewTableBody.innerHTML = ''; // Limpiar tabla
+        if (previewTableBody) {
+            previewTableBody.innerHTML = '';
+            const rows = document.querySelectorAll('.spec-row');
+            rows.forEach(row => {
+                const param = row.querySelector('.param-name')?.value || '';
+                const spec = row.querySelector('.param-spec')?.value || '';
+                const method = row.querySelector('.param-method')?.value || '';
 
-        const rows = document.querySelectorAll('.spec-row');
-        rows.forEach(row => {
-            const param = row.querySelector('.param-name').value;
-            const spec = row.querySelector('.param-spec').value;
-            const method = row.querySelector('.param-method').value;
+                if (param || spec || method) {
+                    const tr = document.createElement('tr');
+                    
+                    const tdParam = document.createElement('td');
+                    tdParam.className = "p-2 font-medium text-slate-800";
+                    tdParam.textContent = param;
 
-            if (param || spec || method) {
-                const tr = document.createElement('tr');
-                
-                const tdParam = document.createElement('td');
-                tdParam.className = "p-2 font-medium text-slate-800";
-                tdParam.textContent = param;
+                    const tdSpec = document.createElement('td');
+                    tdSpec.className = "p-2 text-slate-600";
+                    tdSpec.textContent = spec;
 
-                const tdSpec = document.createElement('td');
-                tdSpec.className = "p-2 text-slate-600";
-                tdSpec.textContent = spec;
+                    const tdMethod = document.createElement('td');
+                    tdMethod.className = "p-2 text-slate-500 font-mono text-[10px]";
+                    tdMethod.textContent = method;
 
-                const tdMethod = document.createElement('td');
-                tdMethod.className = "p-2 text-slate-500 font-mono text-[10px]";
-                tdMethod.textContent = method;
-
-                tr.appendChild(tdParam);
-                tr.appendChild(tdSpec);
-                tr.appendChild(tdMethod);
-                previewTableBody.appendChild(tr);
-            }
-        });
+                    tr.appendChild(tdParam);
+                    tr.appendChild(tdSpec);
+                    tr.appendChild(tdMethod);
+                    previewTableBody.appendChild(tr);
+                }
+            });
+        }
     }
 
-    // Listeners de actualización (Se agregan revNumber y revChange al Array) <-- NUEVO
+    // Escuchadores de eventos
     ['prodName', 'prodCode', 'companyName', 'docDate', 'localeSelect', 'revNumber', 'revChange', 'prodDesc'].forEach(key => {
         if (elements[key]) {
             elements[key].addEventListener('input', updatePreview);
@@ -133,25 +139,26 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.specRowsContainer.addEventListener('input', updatePreview);
     }
 
-    // Agregar nueva fila
+    // Botón Agregar Fila
     if (elements.addSpecBtn) {
         elements.addSpecBtn.addEventListener('click', () => {
             const newRow = document.createElement('div');
             newRow.className = 'grid grid-cols-3 gap-2 spec-row mt-2';
             newRow.innerHTML = `
-                <input type="text" placeholder="Parámetro" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-name">
-                <input type="text" placeholder="Especificación" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-spec">
-                <input type="text" placeholder="Método" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-method">
+                <input type="text" placeholder="Parámetro" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-name text-white">
+                <input type="text" placeholder="Especificación" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-spec text-white">
+                <input type="text" placeholder="Método" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs param-method text-white">
             `;
             elements.specRowsContainer.appendChild(newRow);
+            updatePreview();
         });
     }
 
-    // Generador PDF
+    // Botón Generar PDF
     if (elements.generatePdfBtn) {
         elements.generatePdfBtn.addEventListener('click', () => {
             const element = document.getElementById('pdfTemplate');
-            const fileName = (elements.prodCode.value || 'Ficha_Tecnica') + '.pdf';
+            const fileName = (elements.prodCode && elements.prodCode.value ? elements.prodCode.value : 'Ficha_Tecnica') + '.pdf';
 
             const opt = {
                 margin:       0.4,
@@ -165,5 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Ejecución inicial obligatoria
     updatePreview();
 });
