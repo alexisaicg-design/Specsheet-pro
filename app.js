@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
         prodCode: document.getElementById('prodCode'),
         companyName: document.getElementById('companyName'),
         docDate: docDateInput,
+        userEmail: document.getElementById('userEmail'),
+        docDate: docDateInput,
         localeSelect: document.getElementById('localeSelect'),
         revNumber: document.getElementById('revNumber'),
         revChange: document.getElementById('revChange'),
@@ -154,12 +156,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Botón Generar PDF
+    // Botón Generar PDF + Captura de Leads silenciosa
     if (elements.generatePdfBtn) {
         elements.generatePdfBtn.addEventListener('click', () => {
             const element = document.getElementById('pdfTemplate');
             const fileName = (elements.prodCode && elements.prodCode.value ? elements.prodCode.value : 'Ficha_Tecnica') + '.pdf';
+            const emailValue = elements.userEmail ? elements.userEmail.value.trim() : '';
 
+            // 1. Envío asíncrono de lead (si el usuario ingresó correo)
+            if (emailValue !== '') {
+                fetch('https://formspree.io/f/mpppvbwo', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: emailValue,
+                        empresa: elements.companyName ? elements.companyName.value : 'No especificada',
+                        producto: elements.prodName ? elements.prodName.value : 'No especificado',
+                        codigo: elements.prodCode ? elements.prodCode.value : 'No especificado',
+                        fecha: new Date().toLocaleString()
+                    })
+                }).catch(err => console.log('Lead sync error:', err)); // Manejo silencioso sin bloquear al usuario
+            }
+
+            // 2. Generación normal del PDF
             const opt = {
                 margin:       0.4,
                 filename:     fileName,
